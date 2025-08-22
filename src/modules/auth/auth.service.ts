@@ -1,23 +1,25 @@
 import { ConflictException, Injectable } from '@nestjs/common'
-import { CreateRegisterDto, UserInfo } from './register.dto'
 import * as bcrypt from 'bcrypt'
 import { randomUUID } from 'crypto'
+import {
+  PublicUserInfo,
+  UserAuthDto,
+  UserInfo,
+  UserListsResponse,
+} from './auth.dto'
 
 @Injectable()
-export class RegisterService {
+export class AuthService {
   private readonly usersByUsername = new Map<string, UserInfo>()
 
-  async createUser(dto: CreateRegisterDto) {
+  async createUser(dto: UserAuthDto): Promise<PublicUserInfo> {
     const usernameKey = dto.username.toLowerCase()
 
-    // ตรวจซ้ำ
     if (this.usersByUsername.has(usernameKey)) {
       throw new ConflictException('Username already taken')
     }
 
-    // Hash รหัสผ่าน
     const passwordHash = await bcrypt.hash(dto.password, 10)
-
     const user: UserInfo = {
       id: randomUUID(),
       username: dto.username,
@@ -27,16 +29,14 @@ export class RegisterService {
 
     this.usersByUsername.set(usernameKey, user)
 
-    // คืนข้อมูลไม่รวม passwordHash
     return {
       id: user.id,
       username: user.username,
       createdAt: user.createdAt,
-      results: this.usersByUsername,
     }
   }
 
-  getUserLists() {
+  getUserLists(): UserListsResponse {
     const users = Array.from(this.usersByUsername.values()).map((user) => ({
       id: user.id,
       username: user.username,
@@ -47,5 +47,15 @@ export class RegisterService {
       total: users.length,
       data: users,
     }
+  }
+
+  findByUsername(username: string): UserInfo | null {
+    return this.usersByUsername.get(username.toLowerCase()) || null
+  }
+
+  async verifyPassword(username: string, password: string): Promise<boolean> {
+    const user = this.findByUsername(username)
+    if (!user) return false
+    return bcrypt.compare(password, user.passwordHash)
   }
 }

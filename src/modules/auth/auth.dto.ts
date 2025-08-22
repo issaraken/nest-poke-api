@@ -6,7 +6,7 @@ import {
   IsNotEmpty,
 } from 'class-validator'
 
-export class CreateRegisterDto {
+export class UserAuthDto {
   @IsString({ message: 'Username must be a string' })
   @IsNotEmpty({ message: 'Username is required' })
   @MinLength(3, { message: 'Username must be at least 3 characters' })
@@ -28,4 +28,15 @@ export interface UserInfo {
   username: string
   passwordHash: string
   createdAt: string
+}
+
+export interface PublicUserInfo {
+  id: string
+  username: string
+  createdAt: string
+}
+
+export interface UserListsResponse {
+  total: number
+  data: PublicUserInfo[]
 }
