@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  # NestJS App
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+
+  # Redis สำหรับ Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
