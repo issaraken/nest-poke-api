@@ -26,4 +26,8 @@ export class AppConfigService {
       ) ?? 'https://pokeapi.co/api/v2/'
     )
   }
+
+  get cacheTime(): number {
+    return this.configService.get<number>('CACHE_TIME', 600000) ?? 600000
+  }
 }

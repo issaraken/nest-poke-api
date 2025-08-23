@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt'
 import { AppConfigService } from './services/config.service'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
 import { JwtStrategy } from './strategies/jwt.strategy'
+import { CacheModule } from '@nestjs/cache-manager'
 
 @Global()
 @Module({
@@ -18,8 +19,18 @@ import { JwtStrategy } from './strategies/jwt.strategy'
         signOptions: { expiresIn: config.jwtExpiresIn },
       }),
     }),
+    CacheModule.register({
+      ttl: 600, // 10 minutes in seconds
+      max: 100, // maximum number of items in cache
+    }),
   ],
   providers: [AppConfigService, JwtAuthGuard, JwtStrategy],
-  exports: [AppConfigService, JwtAuthGuard, JwtStrategy, JwtModule],
+  exports: [
+    AppConfigService,
+    JwtAuthGuard,
+    JwtStrategy,
+    JwtModule,
+    CacheModule,
+  ],
 })
 export class CommonModule {}
