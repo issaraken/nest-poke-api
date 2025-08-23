@@ -46,4 +46,23 @@ export class PokemonService {
       abilities: abilityLists,
     }
   }
+
+  async getPokemonRandom(): Promise<PokemonDto> {
+    try {
+      const randomId = Math.floor(Math.random() * 1010) + 1
+      const response = await axios.get<PokemonEntity>(
+        `${this.config.pokeApiUrl}/pokemon/${randomId}`,
+      )
+
+      return this.transformPokemonToDto(response.data)
+    } catch (error) {
+      console.error('Random Pokemon API Error:', error)
+
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        // If Pokemon not found, try again with a different random ID
+        return this.getPokemonRandom()
+      }
+      throw new BadRequestException('Failed to fetch random Pokemon data')
+    }
+  }
 }
