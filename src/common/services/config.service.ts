@@ -18,10 +18,10 @@ export class AppConfigService {
     return this.configService.get<string>('JWT_EXPIRES_IN', '24h') ?? '24h'
   }
 
-  get pokeApi(): string {
+  get pokeApiUrl(): string {
     return (
       this.configService.get<string>(
-        'POKE_API',
+        'POKE_API_URL',
         'https://pokeapi.co/api/v2/',
       ) ?? 'https://pokeapi.co/api/v2/'
     )
