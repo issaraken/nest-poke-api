@@ -1,4 +1,3 @@
-import { AuthService } from '@/modules/auth/auth.service'
 import { JwtPayloadModel } from '@common/dto/auth.dto'
 import {
   Injectable,
@@ -11,10 +10,7 @@ import { Observable } from 'rxjs'
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly jwtService: JwtService,
-  ) {
+  constructor(private readonly jwtService: JwtService) {
     super()
   }
 
@@ -42,11 +38,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         if (tokenExpiry && currentTime > tokenExpiry) {
           console.error('Token has expired!')
           throw new UnauthorizedException('Token has expired')
-        }
-
-        if (payload.username) {
-          const user = this.authService.findByUsername(payload.username)
-          if (!user) throw new UnauthorizedException('User not found in system')
         }
       } catch (error) {
         console.error('Invalid token format:', error)
