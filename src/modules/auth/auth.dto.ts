@@ -1,26 +1,20 @@
-import {
-  IsString,
-  MinLength,
-  MaxLength,
-  Matches,
-  IsNotEmpty,
-} from 'class-validator'
+import { Transform } from 'class-transformer'
+import { IsString, MinLength, MaxLength, IsNotEmpty } from 'class-validator'
 
 export class UserAuthDto {
-  @IsString({ message: 'Username must be a string' })
   @IsNotEmpty({ message: 'Username is required' })
-  @MinLength(3, { message: 'Username must be at least 3 characters' })
+  @IsString({ message: 'Username must be a string' })
+  @MinLength(6, { message: 'Username must be at least 6 characters' })
   @MaxLength(30, { message: 'Username must not exceed 30 characters' })
-  @Matches(/^[a-zA-Z0-9._-]+$/, {
-    message: 'Username allows only a-z A-Z 0-9 . _ -',
-  })
-  username!: string
+  @Transform(({ value }: { value: string }) => value?.trim())
+  username: string
 
-  @IsString({ message: 'Password must be a string' })
   @IsNotEmpty({ message: 'Password is required' })
+  @IsString({ message: 'Password must be a string' })
   @MinLength(6, { message: 'Password must be at least 6 characters' })
   @MaxLength(60, { message: 'Password must not exceed 60 characters' })
-  password!: string
+  @Transform(({ value }: { value: string }) => value?.trim())
+  password: string
 }
 
 export interface UserInfo {
@@ -39,4 +33,10 @@ export interface PublicUserInfo {
 export interface UserListsResponse {
   total: number
   data: PublicUserInfo[]
+}
+
+export interface LoginResponseModel {
+  username: string
+  accessToken: string
+  expiresIn: string
 }
