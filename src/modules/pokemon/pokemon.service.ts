@@ -5,15 +5,13 @@ import {
   BadRequestException,
 } from '@nestjs/common'
 import axios from 'axios'
-import { PokemonDto } from './pokemon.dto'
+import { PokemonEntity, PokemonDto } from './pokemon.dto'
 
 @Injectable()
 export class PokemonService {
   constructor(private readonly config: AppConfigService) {}
 
   async getPokemonByName(name: string) {
-    return { name: name }
-
     try {
       const pokemonName = name.toLowerCase().trim()
 
@@ -21,18 +19,11 @@ export class PokemonService {
         throw new BadRequestException('Pokemon name is required')
       }
 
-      console.log(`Fetching Pokemon: ${pokemonName}`)
-
-      const response = await axios.get<PokemonDto>(
-        `${this.config.pokeApiUrl}/${pokemonName}`,
+      const response = await axios.get<PokemonEntity>(
+        `${this.config.pokeApiUrl}/pokemon/${pokemonName}`,
       )
 
-      console.log(response)
-
-      return {
-        id: 1,
-        name: 'Bulbasaur',
-      }
+      return this.transformPokemonToDto(response.data)
     } catch (error) {
       console.error('Pokemon API Error:')
 
@@ -40,6 +31,19 @@ export class PokemonService {
         throw new NotFoundException(`Pokemon '${name}' not found`)
       }
       throw new BadRequestException('Failed to fetch Pokemon data')
+    }
+  }
+
+  private transformPokemonToDto(data: PokemonEntity): PokemonDto {
+    const typeLists = data.types.map((type) => type.type.name)
+    const abilityLists = data.abilities.map((ability) => ability.ability.name)
+    return {
+      id: data.id,
+      name: data.name,
+      height: data.height,
+      weight: data.weight,
+      types: typeLists,
+      abilities: abilityLists,
     }
   }
 }
