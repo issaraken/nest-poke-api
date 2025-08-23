@@ -17,4 +17,13 @@ export class AppConfigService {
   get jwtExpiresIn(): string {
     return this.configService.get<string>('JWT_EXPIRES_IN', '24h') ?? '24h'
   }
+
+  get pokeApi(): string {
+    return (
+      this.configService.get<string>(
+        'POKE_API',
+        'https://pokeapi.co/api/v2/',
+      ) ?? 'https://pokeapi.co/api/v2/'
+    )
+  }
 }
